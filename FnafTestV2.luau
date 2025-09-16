@@ -1,60 +1,50 @@
---[[
-    FNAF TEST (LocalScript) - Five Nights at Freddy's Cheat/Debug Suite
-    - Night Vision
-    - ESP Animatronics/Levers/Generators/Terminal (Pizzaria/Porão)
-    - Waypoints (Teleport/Save)
-    - Cheats: Fly, WalkSpeed, Noclip (persistente)
-    - GUI com abas: História, Labirinto, Cheats, Players
-    - Player List com ESP/Teleport em qualquer player
-    - 100% Client-side, modular e personalizável
-
-    Coloque em StarterPlayerScripts ou StarterGui!
-]]
+-- FNAF TEST - Debug Suite Completo
+-- Coloque em StarterPlayerScripts ou use em executor
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
-local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local mouse = player:GetMouse()
 
 -----------------
 -- GUI SETUP   --
 -----------------
-local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-ScreenGui.Name = "FNAF_TEST"
+local gui = Instance.new("ScreenGui")
+gui.Name = "FNAF_TEST"
+gui.Parent = player:WaitForChild("PlayerGui")
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 530, 0, 340)
-MainFrame.Position = UDim2.new(0, 20, 0, 40)
-MainFrame.BackgroundTransparency = 0.08
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 40)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Parent = ScreenGui
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 550, 0, 370)
+main.Position = UDim2.new(0, 40, 0, 60)
+main.BackgroundColor3 = Color3.fromRGB(24, 24, 39)
+main.BackgroundTransparency = 0.08
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+main.Parent = gui
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1,0,0,32)
-Title.BackgroundTransparency = 1
-Title.Text = "FNAF TEST - Debug Suite"
-Title.Font = Enum.Font.GothamBold
-Title.TextColor3 = Color3.new(1,1,1)
-Title.TextSize = 22
-Title.TextStrokeTransparency = 0.6
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,32)
+title.Position = UDim2.new(0,0,0,0)
+title.BackgroundTransparency = 1
+title.Text = "FNAF TEST Suite"
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = Color3.new(1,1,1)
+title.TextSize = 22
+title.TextStrokeTransparency = 0.6
 
-local Tabs = {"Modo História", "Modo Labirinto", "Cheats", "Players"}
-local tabFrames = {}
-local tabButtons = {}
-for i, tabName in ipairs(Tabs) do
-    local btn = Instance.new("TextButton", MainFrame)
-    btn.Size = UDim2.new(0, 120, 0, 30)
-    btn.Position = UDim2.new(0, (i-1)*130, 0, 36)
-    btn.BackgroundColor3 = Color3.fromRGB(30,30,40)
+local Tabs = {"História", "Labirinto", "Cheats", "Players"}
+local tabFrames, tabButtons = {}, {}
+local tabHeight, tabWidth = 36, 128
+
+for i,tabName in ipairs(Tabs) do
+    local btn = Instance.new("TextButton", main)
+    btn.Size = UDim2.new(0, tabWidth, 0, tabHeight)
+    btn.Position = UDim2.new(0, (i-1)*tabWidth, 0, 36)
+    btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
     btn.Text = tabName
     btn.Font = Enum.Font.GothamBold
     btn.TextColor3 = Color3.new(1,1,1)
@@ -62,21 +52,21 @@ for i, tabName in ipairs(Tabs) do
     btn.AutoButtonColor = true
     tabButtons[i] = btn
 
-    local frame = Instance.new("Frame", MainFrame)
-    frame.Size = UDim2.new(1, -20, 1, -75)
-    frame.Position = UDim2.new(0, 10, 0, 75)
+    local frame = Instance.new("Frame", main)
+    frame.Size = UDim2.new(1, -20, 1, -(tabHeight+54))
+    frame.Position = UDim2.new(0, 10, 0, tabHeight+54)
     frame.BackgroundTransparency = 0.18
-    frame.BackgroundColor3 = Color3.fromRGB(20,20,30)
+    frame.BackgroundColor3 = Color3.fromRGB(22,22,32)
     frame.Visible = i == 1
     tabFrames[i] = frame
 
     btn.MouseButton1Click:Connect(function()
-        for j, f in pairs(tabFrames) do
+        for j, f in ipairs(tabFrames) do
             f.Visible = false
-            tabButtons[j].BackgroundColor3 = Color3.fromRGB(30,30,40)
+            tabButtons[j].BackgroundColor3 = Color3.fromRGB(35,35,50)
         end
         frame.Visible = true
-        btn.BackgroundColor3 = Color3.fromRGB(50,50,80)
+        btn.BackgroundColor3 = Color3.fromRGB(60,60,100)
     end)
 end
 
@@ -104,9 +94,9 @@ local function disableNightVision()
 end
 
 local nightVisionEnabled = false
-for i=1,#Tabs do
-    local btn = Instance.new("TextButton", tabFrames[i])
-    btn.Size = UDim2.new(0,150,0,32)
+local function addNightVisionBtn(parent)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0, 150, 0, 32)
     btn.Position = UDim2.new(0, 10, 0, 10)
     btn.Text = "Night Vision [Off]"
     btn.Font = Enum.Font.GothamBold
@@ -120,6 +110,7 @@ for i=1,#Tabs do
         if nightVisionEnabled then enableNightVision() else disableNightVision() end
     end)
 end
+for i=1,#Tabs do addNightVisionBtn(tabFrames[i]) end
 
 --------------------------
 -- ESP SYSTEM (Labirinto)
@@ -480,7 +471,7 @@ local function teleportToPlayer(plr)
 end
 
 local playerListFrame = Instance.new("ScrollingFrame", tabFrames[4])
-playerListFrame.Size = UDim2.new(0, 210, 1, -30)
+playerListFrame.Size = UDim2.new(0, 220, 1, -34)
 playerListFrame.Position = UDim2.new(0, 10, 0, 10)
 playerListFrame.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
 playerListFrame.BorderSizePixel = 0
@@ -489,8 +480,8 @@ playerListFrame.ScrollBarThickness = 8
 playerListFrame.Name = "PlayerList"
 
 local refreshBtn = Instance.new("TextButton", tabFrames[4])
-refreshBtn.Size = UDim2.new(0, 90, 0, 26)
-refreshBtn.Position = UDim2.new(0, 230, 0, 10)
+refreshBtn.Size = UDim2.new(0, 110, 0, 26)
+refreshBtn.Position = UDim2.new(0, 235, 0, 10)
 refreshBtn.Text = "Refresh Players"
 refreshBtn.Font = Enum.Font.GothamBold
 refreshBtn.TextColor3 = Color3.new(0.8,1,1)
@@ -552,13 +543,11 @@ populatePlayers()
 --------------------------
 -- INSTRUÇÕES
 --------------------------
-local instruct = Instance.new("TextLabel", MainFrame)
+local instruct = Instance.new("TextLabel", main)
 instruct.Size = UDim2.new(1,0,0,24)
 instruct.Position = UDim2.new(0,0,1,-24)
 instruct.BackgroundTransparency = 1
-instruct.Text = "B = Waypoint | Fly: WASD/Space/Ctrl | Use textboxes for speed | ESP: Animatronics/Players | TP: Teleporta para player"
+instruct.Text = "B = Waypoint | Fly: WASD/Space/Ctrl | Use textboxes para ajustar velocidade | ESP: Animatronics/Players | TP: Teleporta para player"
 instruct.Font = Enum.Font.Code
 instruct.TextColor3 = Color3.fromRGB(255,255,160)
 instruct.TextScaled = true
-
--- Feito para Msouzen2002 por Copilot 2024/2025. Personalize à vontade!
