@@ -1,235 +1,132 @@
--- FNAF TEST FINAL - GUI Ultra Premium, Smooth, Arrow Key Move, ALT Hide/Show
--- Feito para Msouzen2002, 2025
+-- FNAF TEST - Simples, funcional, com cheats, ALT fecha/abre, setas movem GUI
+-- Feito para Msouzen2002
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
-
 local player = Players.LocalPlayer
+
 local gui = Instance.new("ScreenGui")
-gui.Name = "FNAF_TEST_FINAL"
+gui.Name = "FNAF_TEST_SIMPLES_COMPLETO"
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 gui.DisplayOrder = 9999
 gui.Parent = player:WaitForChild("PlayerGui")
 
-local dragStep = 20 -- Quantos pixels a GUI move por seta
+local moveStep = 25
+local guiVisible = true
 
--- MainFrame
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 700, 0, 480)
-MainFrame.Position = UDim2.new(0.5, -350, 0.5, -240)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 33)
-MainFrame.BackgroundTransparency = 0
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = false -- Drag desativado, só seta move!
-MainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-MainFrame.ZIndex = 100
-MainFrame.Parent = gui
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 520, 0, 440)
+frame.Position = UDim2.new(0.5, -260, 0.5, -220)
+frame.BackgroundColor3 = Color3.fromRGB(30,33,46)
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.Active = true
+frame.Parent = gui
 
-local gradient = Instance.new("UIGradient", MainFrame)
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(80,120,220)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(24,24,44))
-}
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0,40)
+title.Position = UDim2.new(0,0,0,0)
+title.BackgroundTransparency = 1
+title.Text = "FNAF TEST"
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = Color3.fromRGB(255,220,90)
+title.TextSize = 26
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1,0,0,52)
-Title.Position = UDim2.new(0,0,0,0)
-Title.BackgroundTransparency = 1
-Title.Text = "FNAF TEST FINAL"
-Title.Font = Enum.Font.GothamBlack
-Title.TextColor3 = Color3.fromRGB(255,220,90)
-Title.TextSize = 36
-Title.TextStrokeTransparency = 0.8
-Title.ZIndex = 101
+local info = Instance.new("TextLabel", frame)
+info.Size = UDim2.new(1, -20, 0, 28)
+info.Position = UDim2.new(0, 10, 1, -36)
+info.BackgroundTransparency = 1
+info.Text = "ALT: Fecha/Abre | Setas: Move GUI | B: Waypoint | TP/ESP Players"
+info.Font = Enum.Font.Code
+info.TextColor3 = Color3.fromRGB(255,255,160)
+info.TextScaled = true
 
--------------------------
--- Abas Avançadas
--------------------------
-local Tabs = {"História", "Labirinto", "Cheats", "Players", "Config"}
-local tabFrames, tabButtons = {}, {}
-local activeTab = 1
-local tabHeight, tabWidth, tabPad = 54, 140, 10
-
-local TabsFrame = Instance.new("Frame", MainFrame)
-TabsFrame.Size = UDim2.new(1, -20, 0, tabHeight)
-TabsFrame.Position = UDim2.new(0, 10, 0, 60)
-TabsFrame.BackgroundTransparency = 1
-TabsFrame.ZIndex = 101
-
-for i, tabName in ipairs(Tabs) do
-    local btn = Instance.new("TextButton", TabsFrame)
-    btn.Size = UDim2.new(0, tabWidth, 1, 0)
-    btn.Position = UDim2.new(0, (i-1)*(tabWidth+tabPad), 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(30,30,50)
-    btn.Text = tabName
-    btn.Font = Enum.Font.GothamBold
-    btn.TextColor3 = Color3.fromRGB(255,220,120)
-    btn.TextSize = 22
-    btn.AutoButtonColor = true
-    btn.ZIndex = 102
-    tabButtons[i] = btn
-
-    local frame = Instance.new("Frame", MainFrame)
-    frame.Size = UDim2.new(1, -28, 1, -(tabHeight+88))
-    frame.Position = UDim2.new(0, 14, 0, tabHeight+86)
-    frame.BackgroundTransparency = 0.04
-    frame.BackgroundColor3 = Color3.fromRGB(22,22,32)
-    frame.Visible = i == 1
-    frame.ZIndex = 103
-    tabFrames[i] = frame
-
-    btn.MouseButton1Click:Connect(function()
-        for j, f in ipairs(tabFrames) do
-            f.Visible = false
-            tabButtons[j].BackgroundColor3 = Color3.fromRGB(30,30,50)
-        end
-        activeTab = i
-        frame.Visible = true
-        btn.BackgroundColor3 = Color3.fromRGB(80,120,220)
-    end)
-end
-
----------------------------
--- NIGHT VISION ULTRA
----------------------------
-local nightVisionEnabled = false
-local function enableNightVision()
-    Lighting.Brightness = 3
-    Lighting.Ambient = Color3.fromRGB(180, 180, 200)
-    Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 200)
-    Lighting.ColorShift_Bottom = Color3.fromRGB(80,80,160)
-    Lighting.ColorShift_Top = Color3.fromRGB(120,120,220)
-    Lighting.FogEnd = 900
-    Lighting.FogStart = 0
-end
-
-local function disableNightVision()
-    Lighting.Brightness = 1
-    Lighting.Ambient = Color3.fromRGB(40, 40, 40)
-    Lighting.OutdoorAmbient = Color3.fromRGB(50, 50, 60)
-    Lighting.ColorShift_Bottom = Color3.new(0,0,0)
-    Lighting.ColorShift_Top = Color3.new(0,0,0)
-    Lighting.FogEnd = 200
-    Lighting.FogStart = 10
-end
-
-local function AddToggle(parent, text, default, callback, y)
-    local frame = Instance.new("Frame", parent)
-    frame.Size = UDim2.new(0, 250, 0, 36)
-    frame.Position = UDim2.new(0, 24, 0, y)
-    frame.BackgroundTransparency = 1
-    frame.ZIndex = 106
-
-    local lbl = Instance.new("TextLabel", frame)
-    lbl.Size = UDim2.new(0.7,0,1,0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextSize = 18
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextColor3 = Color3.fromRGB(220,220,210)
-    lbl.ZIndex = 107
-
-    local toggle = Instance.new("TextButton", frame)
-    toggle.Size = UDim2.new(0.3,0,1,0)
-    toggle.Position = UDim2.new(0.7,0,0,0)
-    toggle.BackgroundColor3 = default and Color3.fromRGB(80,220,140) or Color3.fromRGB(80,80,80)
-    toggle.Text = default and "ON" or "OFF"
-    toggle.TextSize = 18
-    toggle.Font = Enum.Font.GothamBold
-    toggle.TextColor3 = Color3.fromRGB(255,255,220)
-    toggle.ZIndex = 107
-    toggle.AutoButtonColor = true
-
-    toggle.MouseButton1Click:Connect(function()
-        default = not default
-        toggle.BackgroundColor3 = default and Color3.fromRGB(80,220,140) or Color3.fromRGB(80,80,80)
-        toggle.Text = default and "ON" or "OFF"
-        callback(default)
-    end)
-    return frame, toggle
-end
-
-for i = 1, #Tabs do
-    AddToggle(tabFrames[i], "Night Vision", false, function(v)
-        nightVisionEnabled = v
-        if v then enableNightVision() else disableNightVision() end
-    end, 18)
-end
-
-------------------------
--- ESPs: Premium
-------------------------
-local function applyHighlight(obj, color, enable)
-    if obj and obj:IsA("Model") then
-        local highlight = obj:FindFirstChildOfClass("Highlight")
-        if enable then
-            if not highlight then
-                highlight = Instance.new("Highlight")
-                highlight.FillColor = color
-                highlight.OutlineColor = color
-                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                highlight.FillTransparency = 0.32
-                highlight.OutlineTransparency = 0
-                highlight.Parent = obj
-            else
-                highlight.FillColor = color
-                highlight.OutlineColor = color
-            end
-        elseif highlight then
-            highlight:Destroy()
-        end
+-- Night Vision
+local nightVision = false
+local nightBtn = Instance.new("TextButton", frame)
+nightBtn.Size = UDim2.new(0,120,0,28)
+nightBtn.Position = UDim2.new(0,12,0,48)
+nightBtn.Text = "Night Vision [OFF]"
+nightBtn.Font = Enum.Font.GothamBold
+nightBtn.TextSize = 16
+nightBtn.BackgroundColor3 = Color3.fromRGB(45,45,60)
+nightBtn.TextColor3 = Color3.fromRGB(180,255,200)
+nightBtn.MouseButton1Click:Connect(function()
+    nightVision = not nightVision
+    nightBtn.Text = "Night Vision [" .. (nightVision and "ON" or "OFF") .. "]"
+    if nightVision then
+        Lighting.Brightness = 3
+        Lighting.Ambient = Color3.fromRGB(180, 180, 200)
+        Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 200)
+        Lighting.ColorShift_Bottom = Color3.fromRGB(50,60,80)
+        Lighting.ColorShift_Top = Color3.fromRGB(120,120,200)
+        Lighting.FogEnd = 900
+        Lighting.FogStart = 0
+    else
+        Lighting.Brightness = 1
+        Lighting.Ambient = Color3.fromRGB(40, 40, 40)
+        Lighting.OutdoorAmbient = Color3.fromRGB(50, 50, 60)
+        Lighting.ColorShift_Bottom = Color3.new(0,0,0)
+        Lighting.ColorShift_Top = Color3.new(0,0,0)
+        Lighting.FogEnd = 200
+        Lighting.FogStart = 10
     end
+end)
+
+-- ESPs simples (História e Labirinto)
+local function simpleToggleESP(labeltxt, object, color, posY)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0,148,0,28)
+    btn.Position = UDim2.new(0,12,0,posY)
+    btn.Text = labeltxt .. " [OFF]"
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 15
+    btn.BackgroundColor3 = Color3.fromRGB(40,40,70)
+    btn.TextColor3 = color
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.Text = labeltxt .. (state and " [ON]" or " [OFF]")
+        if object and object:IsA("Model") then
+            local hl = object:FindFirstChildOfClass("Highlight")
+            if state then
+                if not hl then
+                    hl = Instance.new("Highlight")
+                    hl.FillColor = color
+                    hl.OutlineColor = color
+                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    hl.FillTransparency = 0.5
+                    hl.Parent = object
+                end
+            elseif hl then
+                hl:Destroy()
+            end
+        end
+    end)
 end
 
-local historiaESP = {
-    Freddy = {path = Workspace:FindFirstChild("Freddy"), color = Color3.fromRGB(230, 140, 70)},
-    Bonnie = {path = Workspace:FindFirstChild("Bonnie"), color = Color3.fromRGB(100, 70, 230)},
-    Chica = {path = Workspace:FindFirstChild("Chica"), color = Color3.fromRGB(255, 220, 50)},
-    Foxy = {path = Workspace:FindFirstChild("Foxy"), color = Color3.fromRGB(220, 50, 50)},
-    Generator1 = {path = Workspace.WorkspaceUtilities:FindFirstChild("Generator"), color = Color3.fromRGB(60,255,60)},
-    Generator2 = {path = Workspace.WorkspaceUtilities:FindFirstChild("Generator"), color = Color3.fromRGB(60,255,60)},
-    VentsLever = {path = Workspace.WorkspaceUtilities:FindFirstChild("VentsLever"), color = Color3.fromRGB(60,60,255)}
-}
-local y = 70
-for name, data in pairs(historiaESP) do
-    AddToggle(tabFrames[1], "ESP: "..name, false, function(state)
-        applyHighlight(data.path, data.color, state)
-    end, y)
-    y = y + 38
-end
+-- ESPs História
+simpleToggleESP("ESP Freddy", Workspace:FindFirstChild("Freddy"), Color3.fromRGB(230,140,70), 88)
+simpleToggleESP("ESP Bonnie", Workspace:FindFirstChild("Bonnie"), Color3.fromRGB(100,70,230), 118)
+simpleToggleESP("ESP Chica", Workspace:FindFirstChild("Chica"), Color3.fromRGB(255,220,50), 148)
+simpleToggleESP("ESP Foxy", Workspace:FindFirstChild("Foxy"), Color3.fromRGB(220,50,50), 178)
+simpleToggleESP("ESP Gen1", Workspace.WorkspaceUtilities:FindFirstChild("Generator"), Color3.fromRGB(60,255,60), 208)
+simpleToggleESP("ESP Gen2", Workspace.WorkspaceUtilities:FindFirstChild("Generator"), Color3.fromRGB(60,255,60), 238)
+simpleToggleESP("ESP VentsLever", Workspace.WorkspaceUtilities:FindFirstChild("VentsLever"), Color3.fromRGB(60,60,255), 268)
 
-local labESP = {
-    Freddy = {path = Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Freddy"), color = Color3.fromRGB(230, 140, 70)},
-    Bonnie = {path = Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Bonnie"), color = Color3.fromRGB(100, 70, 230)},
-    Chica = {path = Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Chica"), color = Color3.fromRGB(255, 220, 50)},
-    Foxy = {path = Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Foxy"), color = Color3.fromRGB(220, 50, 50)},
-    Lever1 = {path = Workspace.WorkspaceUtilities.Levers:FindFirstChild("Lever1"), color = Color3.fromRGB(255,255,255)},
-    Lever2 = {path = Workspace.WorkspaceUtilities.Levers:FindFirstChild("Lever2"), color = Color3.fromRGB(255,255,255)},
-    Generator1 = {path = Workspace.WorkspaceUtilities.Generators:FindFirstChild("Generator1"), color = Color3.fromRGB(60,255,60)},
-    Generator2 = {path = Workspace.WorkspaceUtilities.Generators:FindFirstChild("Generator2"), color = Color3.fromRGB(60,255,60)},
-    Generator3 = {path = Workspace.WorkspaceUtilities.Generators:FindFirstChild("Generator3"), color = Color3.fromRGB(60,255,60)},
-    Terminal = {path = Workspace.WorkspaceUtilities:FindFirstChild("Terminal"), color = Color3.fromRGB(60,60,255)}
-}
-local y2 = 70
-for name, data in pairs(labESP) do
-    AddToggle(tabFrames[2], "ESP: "..name, false, function(state)
-        applyHighlight(data.path, data.color, state)
-    end, y2)
-    y2 = y2 + 38
-end
+-- ESPs Labirinto
+simpleToggleESP("ESP Freddy (Lab)", Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Freddy"), Color3.fromRGB(230,140,70), 298)
+simpleToggleESP("ESP Bonnie (Lab)", Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Bonnie"), Color3.fromRGB(100,70,230), 328)
+simpleToggleESP("ESP Chica (Lab)", Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Chica"), Color3.fromRGB(255,220,50), 358)
+simpleToggleESP("ESP Foxy (Lab)", Workspace.WorkspaceUtilities.Animatronics:FindFirstChild("Foxy"), Color3.fromRGB(220,50,50), 388)
 
------------------------
--- CHEATS + WAYPOINTS
------------------------
-local cheatsY = 70
+-- Waypoints
 local waypointsFolder = Workspace:FindFirstChild("Waypoints") or Instance.new("Folder", Workspace)
 waypointsFolder.Name = "Waypoints"
 local counter = 0
@@ -239,8 +136,15 @@ local colorTable = {
     Color3.fromRGB(255, 0, 255), Color3.fromRGB(0, 255, 255),
     Color3.fromRGB(255, 128, 0), Color3.fromRGB(128, 0, 255)
 }
-
-local function createWaypoint()
+local waypointBtn = Instance.new("TextButton", frame)
+waypointBtn.Size = UDim2.new(0,140,0,28)
+waypointBtn.Position = UDim2.new(0,180,0,48)
+waypointBtn.Text = "Criar Waypoint [B]"
+waypointBtn.Font = Enum.Font.GothamBold
+waypointBtn.TextSize = 15
+waypointBtn.BackgroundColor3 = Color3.fromRGB(60,60,24)
+waypointBtn.TextColor3 = Color3.fromRGB(255,255,120)
+waypointBtn.MouseButton1Click:Connect(function()
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
@@ -283,38 +187,29 @@ local function createWaypoint()
             hrp.CFrame = CFrame.new(part.Position + Vector3.new(0, 3, 0))
         end
     end)
-end
-
-local waypointBtn = Instance.new("TextButton", tabFrames[3])
-waypointBtn.Size = UDim2.new(0, 228, 0, 36)
-waypointBtn.Position = UDim2.new(0, 24, 0, cheatsY)
-waypointBtn.Text = "Criar Waypoint [B]"
-waypointBtn.Font = Enum.Font.GothamBold
-waypointBtn.TextColor3 = Color3.fromRGB(255,255,120)
-waypointBtn.TextSize = 18
-waypointBtn.BackgroundColor3 = Color3.fromRGB(70,70,24)
-waypointBtn.AutoButtonColor = true
-waypointBtn.ZIndex = 106
-waypointBtn.MouseButton1Click:Connect(createWaypoint)
+end)
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.B then
-        createWaypoint()
+        waypointBtn.MouseButton1Click:Fire()
     end
 end)
-cheatsY = cheatsY + 44
 
--- FLY, WALKSPEED, NOCLIP: só mostram controles extra quando ativados!
+-- Cheats: Fly, WalkSpeed, Noclip
 local flyEnabled, flySpeed, walkspeed, noclipEnabled = false, 40, 32, false
 local bodyGyro, bodyVelocity
 
-local function showFlyControls(show)
-    flySpeedBox.Visible = show
-end
-
-local flyFrame, flyToggle = AddToggle(tabFrames[3], "Fly", false, function(state)
-    flyEnabled = state
-    showFlyControls(state)
+local flyBtn = Instance.new("TextButton", frame)
+flyBtn.Size = UDim2.new(0,100,0,26)
+flyBtn.Position = UDim2.new(0,180,0,88)
+flyBtn.Text = "Fly [OFF]"
+flyBtn.Font = Enum.Font.GothamBold
+flyBtn.TextSize = 15
+flyBtn.BackgroundColor3 = Color3.fromRGB(40,60,60)
+flyBtn.TextColor3 = Color3.fromRGB(180,255,200)
+flyBtn.MouseButton1Click:Connect(function()
+    flyEnabled = not flyEnabled
+    flyBtn.Text = "Fly ["..(flyEnabled and "ON" or "OFF").."]"
     if flyEnabled then
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -331,24 +226,22 @@ local flyFrame, flyToggle = AddToggle(tabFrames[3], "Fly", false, function(state
         if bodyGyro then bodyGyro:Destroy() end
         if bodyVelocity then bodyVelocity:Destroy() end
     end
-end, cheatsY)
-cheatsY = cheatsY + 38
+end)
 
-local flySpeedBox = Instance.new("TextBox", tabFrames[3])
-flySpeedBox.Size = UDim2.new(0, 100, 0, 32)
-flySpeedBox.Position = UDim2.new(0, 262, 0, cheatsY-38)
+local flySpeedBox = Instance.new("TextBox", frame)
+flySpeedBox.Size = UDim2.new(0,60,0,26)
+flySpeedBox.Position = UDim2.new(0,290,0,88)
 flySpeedBox.Text = tostring(flySpeed)
 flySpeedBox.PlaceholderText = "FlySpeed"
 flySpeedBox.Font = Enum.Font.GothamBold
-flySpeedBox.TextColor3 = Color3.new(0.8,1,0.8)
-flySpeedBox.TextSize = 17
+flySpeedBox.TextColor3 = Color3.fromRGB(180,255,200)
+flySpeedBox.TextSize = 15
 flySpeedBox.BackgroundColor3 = Color3.fromRGB(15,30,20)
-flySpeedBox.Visible = false
-flySpeedBox.ZIndex = 106
 flySpeedBox.FocusLost:Connect(function()
     local val = tonumber(flySpeedBox.Text)
     if val then flySpeed = val end
 end)
+
 UserInputService.InputBegan:Connect(function(input, gp)
     if flyEnabled and not gp then
         local char = player.Character
@@ -376,38 +269,36 @@ UserInputService.InputEnded:Connect(function(input, gp)
     end
 end)
 
-local function showWSControls(show)
-    wsBox.Visible = show
-end
-
-local function setWalkSpeed(val)
-    walkspeed = val
+local wsBtn = Instance.new("TextButton", frame)
+wsBtn.Size = UDim2.new(0,100,0,26)
+wsBtn.Position = UDim2.new(0,180,0,118)
+wsBtn.Text = "WalkSpeed [OFF]"
+wsBtn.Font = Enum.Font.GothamBold
+wsBtn.TextSize = 15
+wsBtn.BackgroundColor3 = Color3.fromRGB(60,40,10)
+wsBtn.TextColor3 = Color3.fromRGB(255,220,120)
+wsBtn.MouseButton1Click:Connect(function()
+    walkspeed = tonumber(wsSpeedBox.Text) or 32
+    wsBtn.Text = "WalkSpeed ["..walkspeed.."]"
     local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if hum then hum.WalkSpeed = walkspeed end
-end
+end)
 
-local wsFrame, wsToggle = AddToggle(tabFrames[3], "WalkSpeed", false, function(state)
-    showWSControls(state)
-    setWalkSpeed(state and walkspeed or 16)
-end, cheatsY)
-cheatsY = cheatsY + 38
-
-local wsBox = Instance.new("TextBox", tabFrames[3])
-wsBox.Size = UDim2.new(0, 100, 0, 32)
-wsBox.Position = UDim2.new(0, 262, 0, cheatsY-38)
-wsBox.Text = tostring(walkspeed)
-wsBox.PlaceholderText = "WalkSpeed"
-wsBox.Font = Enum.Font.GothamBold
-wsBox.TextColor3 = Color3.new(1,1,0.8)
-wsBox.TextSize = 17
-wsBox.BackgroundColor3 = Color3.fromRGB(30,30,10)
-wsBox.Visible = false
-wsBox.ZIndex = 106
-wsBox.FocusLost:Connect(function()
-    local val = tonumber(wsBox.Text)
+local wsSpeedBox = Instance.new("TextBox", frame)
+wsSpeedBox.Size = UDim2.new(0,60,0,26)
+wsSpeedBox.Position = UDim2.new(0,290,0,118)
+wsSpeedBox.Text = tostring(walkspeed)
+wsSpeedBox.PlaceholderText = "WalkSpeed"
+wsSpeedBox.Font = Enum.Font.GothamBold
+wsSpeedBox.TextColor3 = Color3.fromRGB(255,255,200)
+wsSpeedBox.TextSize = 15
+wsSpeedBox.BackgroundColor3 = Color3.fromRGB(30,30,10)
+wsSpeedBox.FocusLost:Connect(function()
+    local val = tonumber(wsSpeedBox.Text)
     if val then
         walkspeed = val
-        setWalkSpeed(walkspeed)
+        local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = walkspeed end
     end
 end)
 
@@ -420,9 +311,18 @@ player.CharacterAdded:Connect(function(char)
     end)
 end)
 
+local noclipBtn = Instance.new("TextButton", frame)
+noclipBtn.Size = UDim2.new(0,100,0,26)
+noclipBtn.Position = UDim2.new(0,180,0,148)
+noclipBtn.Text = "Noclip [OFF]"
+noclipBtn.Font = Enum.Font.GothamBold
+noclipBtn.TextSize = 15
+noclipBtn.BackgroundColor3 = Color3.fromRGB(60,10,60)
+noclipBtn.TextColor3 = Color3.fromRGB(255,220,255)
 local noclipConn
-local function setNoclip(state)
-    noclipEnabled = state
+noclipBtn.MouseButton1Click:Connect(function()
+    noclipEnabled = not noclipEnabled
+    noclipBtn.Text = "Noclip ["..(noclipEnabled and "ON" or "OFF").."]"
     if noclipEnabled then
         noclipConn = RunService.Stepped:Connect(function()
             if player.Character then
@@ -440,13 +340,27 @@ local function setNoclip(state)
             end
         end
     end
-end
+end)
 
-AddToggle(tabFrames[3], "Noclip", false, setNoclip, cheatsY)
+-- Player List (ESP/TP)
+local playerListLbl = Instance.new("TextLabel", frame)
+playerListLbl.Size = UDim2.new(0,120,0,22)
+playerListLbl.Position = UDim2.new(0,370,0,48)
+playerListLbl.Text = "Players Online:"
+playerListLbl.Font = Enum.Font.GothamBold
+playerListLbl.TextSize = 14
+playerListLbl.TextColor3 = Color3.fromRGB(255,255,160)
+playerListLbl.BackgroundTransparency = 1
 
---------------------------
--- PLAYER LIST/PLAYER ESP
---------------------------
+local playerListFrame = Instance.new("ScrollingFrame", frame)
+playerListFrame.Size = UDim2.new(0,120,0,180)
+playerListFrame.Position = UDim2.new(0,370,0,70)
+playerListFrame.BackgroundColor3 = Color3.fromRGB(35,35,40)
+playerListFrame.BorderSizePixel = 0
+playerListFrame.CanvasSize = UDim2.new(0,0,0,0)
+playerListFrame.ScrollBarThickness = 6
+playerListFrame.Name = "PlayerList"
+
 local function getPlayerRoot(plr)
     return plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
 end
@@ -459,7 +373,7 @@ local function highlightPlayer(plr)
             hl.FillColor = Color3.fromRGB(255,180,60)
             hl.OutlineColor = Color3.fromRGB(255,255,255)
             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            hl.FillTransparency = 0.25
+            hl.FillTransparency = 0.5
             hl.Parent = hrp
         end
     end
@@ -472,143 +386,73 @@ local function teleportToPlayer(plr)
     end
 end
 
-local playerListFrame = Instance.new("ScrollingFrame", tabFrames[4])
-playerListFrame.Size = UDim2.new(0, 360, 1, -58)
-playerListFrame.Position = UDim2.new(0, 28, 0, 58)
-playerListFrame.BackgroundColor3 = Color3.fromRGB(22,22,32)
-playerListFrame.BorderSizePixel = 0
-playerListFrame.CanvasSize = UDim2.new(0,0,0,0)
-playerListFrame.ScrollBarThickness = 8
-playerListFrame.Name = "PlayerList"
-playerListFrame.ZIndex = 110
-
-local refreshBtn = Instance.new("TextButton", tabFrames[4])
-refreshBtn.Size = UDim2.new(0, 140, 0, 32)
-refreshBtn.Position = UDim2.new(0, 400, 0, 58)
-refreshBtn.Text = "Refresh Players"
-refreshBtn.Font = Enum.Font.GothamBold
-refreshBtn.TextColor3 = Color3.new(0.8,1,1)
-refreshBtn.TextSize = 16
-refreshBtn.BackgroundColor3 = Color3.fromRGB(10,30,30)
-refreshBtn.AutoButtonColor = true
-refreshBtn.ZIndex = 112
-
 local function populatePlayers()
     playerListFrame:ClearAllChildren()
     local y = 0
     for _, plr in ipairs(Players:GetPlayers()) do
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, -10, 0, 28)
+        btn.Size = UDim2.new(1, -10, 0, 22)
         btn.Position = UDim2.new(0, 5, 0, y)
         btn.Text = plr.Name
         btn.Font = Enum.Font.SourceSansBold
         btn.TextColor3 = Color3.fromRGB(255,255,180)
-        btn.TextSize = 17
+        btn.TextSize = 14
         btn.BackgroundColor3 = Color3.fromRGB(25,25,50)
         btn.AutoButtonColor = true
         btn.Parent = playerListFrame
-        btn.ZIndex = 115
 
         local espBtn = Instance.new("TextButton")
-        espBtn.Size = UDim2.new(0, 60, 0, 22)
-        espBtn.Position = UDim2.new(1, -68, 0, 3)
+        espBtn.Size = UDim2.new(0, 38, 0, 19)
+        espBtn.Position = UDim2.new(1, -80, 0, 1)
         espBtn.Text = "ESP"
         espBtn.Font = Enum.Font.Code
         espBtn.TextColor3 = Color3.new(1,0.9,0.5)
-        espBtn.TextSize = 14
+        espBtn.TextSize = 12
         espBtn.BackgroundColor3 = Color3.fromRGB(50,40,10)
         espBtn.Parent = btn
-        espBtn.ZIndex = 116
         espBtn.MouseButton1Click:Connect(function()
             highlightPlayer(plr)
         end)
 
         local tpBtn = Instance.new("TextButton")
-        tpBtn.Size = UDim2.new(0, 60, 0, 22)
-        tpBtn.Position = UDim2.new(1, -134, 0, 3)
+        tpBtn.Size = UDim2.new(0, 38, 0, 19)
+        tpBtn.Position = UDim2.new(1, -38, 0, 1)
         tpBtn.Text = "TP"
         tpBtn.Font = Enum.Font.Code
         tpBtn.TextColor3 = Color3.new(0.7,1,0.9)
-        tpBtn.TextSize = 14
+        tpBtn.TextSize = 12
         tpBtn.BackgroundColor3 = Color3.fromRGB(40,40,80)
         tpBtn.Parent = btn
-        tpBtn.ZIndex = 116
         tpBtn.MouseButton1Click:Connect(function()
             teleportToPlayer(plr)
         end)
-        y = y + 32
+        y = y + 22
     end
     playerListFrame.CanvasSize = UDim2.new(0,0,0,y)
 end
-refreshBtn.MouseButton1Click:Connect(populatePlayers)
 Players.PlayerAdded:Connect(populatePlayers)
 Players.PlayerRemoving:Connect(populatePlayers)
 populatePlayers()
 
---------------------------
--- CONFIG / SHIFTLOCK
---------------------------
-AddToggle(tabFrames[5], "Anti ShiftLock [H]", true, function(state)
-    if state then
-        StarterGui:SetCore("MouseLockEnabled", true)
-        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-    else
-        StarterGui:SetCore("MouseLockEnabled", false)
-        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-    end
-end, 80)
-StarterGui:SetCore("MouseLockEnabled", true)
-UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+-- ALT fecha/abre GUI e setas movem GUI
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
-    if input.KeyCode == Enum.KeyCode.H then
-        local s = UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter
-        if s then
-            StarterGui:SetCore("MouseLockEnabled", false)
-            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-        else
-            StarterGui:SetCore("MouseLockEnabled", true)
-            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-        end
-    end
-end)
 
---------------------------
--- INSTRUÇÕES RODAPÉ
---------------------------
-local instruct = Instance.new("TextLabel", MainFrame)
-instruct.Size = UDim2.new(1,0,0,28)
-instruct.Position = UDim2.new(0,0,1,-32)
-instruct.BackgroundTransparency = 1
-instruct.Text = "Setas = Move GUI | ALT = Show/Hide GUI | H = Mouse Lock | TP: Teleporta player | Toggles: smooth/premium"
-instruct.Font = Enum.Font.Code
-instruct.TextColor3 = Color3.fromRGB(255,255,160)
-instruct.TextScaled = true
-instruct.ZIndex = 120
-
---------------------------
--- HOTKEYS ALT FECHAR + SETAS MOVE GUI
---------------------------
-local guiVisible = true
-UserInputService.InputBegan:Connect(function(input, gp)
-    if gp then return end
     if input.KeyCode == Enum.KeyCode.LeftAlt or input.KeyCode == Enum.KeyCode.RightAlt then
         guiVisible = not guiVisible
         gui.Enabled = guiVisible
     end
-    -- Arrow keys move GUI
+
     if gui.Enabled then
-        local pos = MainFrame.Position
+        local pos = frame.Position
         if input.KeyCode == Enum.KeyCode.Left then
-            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset - dragStep, pos.Y.Scale, pos.Y.Offset)
+            frame.Position = UDim2.new(pos.X.Scale, pos.X.Offset - moveStep, pos.Y.Scale, pos.Y.Offset)
         elseif input.KeyCode == Enum.KeyCode.Right then
-            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset + dragStep, pos.Y.Scale, pos.Y.Offset)
+            frame.Position = UDim2.new(pos.X.Scale, pos.X.Offset + moveStep, pos.Y.Scale, pos.Y.Offset)
         elseif input.KeyCode == Enum.KeyCode.Up then
-            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset - dragStep)
+            frame.Position = UDim2.new(pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset - moveStep)
         elseif input.KeyCode == Enum.KeyCode.Down then
-            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset + dragStep)
+            frame.Position = UDim2.new(pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset + moveStep)
         end
     end
 end)
-
--- Feito para Msouzen2002 2025 | Versão finalizada, ultra premium, setas para mover, ALT para abrir/fechar!
