@@ -1,5 +1,5 @@
--- FNAF TEST ULTRA - GUI Premium, Smooth, Responsiva, Modular, Avançada
--- Feito para Msouzen2002, 2025 - Roblox Studio
+-- FNAF TEST FINAL - GUI Ultra Premium, Smooth, Arrow Key Move, ALT Hide/Show
+-- Feito para Msouzen2002, 2025
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -10,50 +10,25 @@ local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
-
---[[
-    Helper: Fade transitions for frames
---]]
-local function fade(frame, show, duration)
-    duration = duration or 0.3
-    if show then
-        frame.Visible = true
-        TweenService:Create(frame, TweenInfo.new(duration), {BackgroundTransparency = 0.07}):Play()
-        for _,v in pairs(frame:GetDescendants()) do
-            if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-                TweenService:Create(v, TweenInfo.new(duration), {TextTransparency = 0}):Play()
-            end
-        end
-    else
-        TweenService:Create(frame, TweenInfo.new(duration), {BackgroundTransparency = 1}):Play()
-        for _,v in pairs(frame:GetDescendants()) do
-            if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-                TweenService:Create(v, TweenInfo.new(duration), {TextTransparency = 1}):Play()
-            end
-        end
-        task.delay(duration, function() frame.Visible = false end)
-    end
-end
-
------------------
--- GUI SETUP   --
------------------
 local gui = Instance.new("ScreenGui")
-gui.Name = "FNAF_TEST_ULTRA"
+gui.Name = "FNAF_TEST_FINAL"
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 gui.DisplayOrder = 9999
 gui.Parent = player:WaitForChild("PlayerGui")
 
+local dragStep = 20 -- Quantos pixels a GUI move por seta
+
+-- MainFrame
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 720, 0, 480)
-MainFrame.Position = UDim2.new(0.5, -360, 0.5, -240)
+MainFrame.Size = UDim2.new(0, 700, 0, 480)
+MainFrame.Position = UDim2.new(0.5, -350, 0.5, -240)
 MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 33)
 MainFrame.BackgroundTransparency = 0
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Draggable = false -- Drag desativado, só seta move!
 MainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 MainFrame.ZIndex = 100
 MainFrame.Parent = gui
@@ -65,27 +40,27 @@ gradient.Color = ColorSequence.new{
 }
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1,0,0,54)
+Title.Size = UDim2.new(1,0,0,52)
 Title.Position = UDim2.new(0,0,0,0)
 Title.BackgroundTransparency = 1
-Title.Text = "FNAF TEST ULTRA"
+Title.Text = "FNAF TEST FINAL"
 Title.Font = Enum.Font.GothamBlack
 Title.TextColor3 = Color3.fromRGB(255,220,90)
-Title.TextSize = 38
+Title.TextSize = 36
 Title.TextStrokeTransparency = 0.8
 Title.ZIndex = 101
 
 -------------------------
--- ABAS & ANIMAÇÃO
+-- Abas Avançadas
 -------------------------
 local Tabs = {"História", "Labirinto", "Cheats", "Players", "Config"}
 local tabFrames, tabButtons = {}, {}
 local activeTab = 1
-local tabHeight, tabWidth, tabPad = 54, 140, 9
+local tabHeight, tabWidth, tabPad = 54, 140, 10
 
 local TabsFrame = Instance.new("Frame", MainFrame)
 TabsFrame.Size = UDim2.new(1, -20, 0, tabHeight)
-TabsFrame.Position = UDim2.new(0, 10, 0, 62)
+TabsFrame.Position = UDim2.new(0, 10, 0, 60)
 TabsFrame.BackgroundTransparency = 1
 TabsFrame.ZIndex = 101
 
@@ -103,29 +78,21 @@ for i, tabName in ipairs(Tabs) do
     tabButtons[i] = btn
 
     local frame = Instance.new("Frame", MainFrame)
-    frame.Size = UDim2.new(1, -28, 1, -(tabHeight+90))
-    frame.Position = UDim2.new(0, 14, 0, tabHeight+88)
-    frame.BackgroundTransparency = 1
+    frame.Size = UDim2.new(1, -28, 1, -(tabHeight+88))
+    frame.Position = UDim2.new(0, 14, 0, tabHeight+86)
+    frame.BackgroundTransparency = 0.04
     frame.BackgroundColor3 = Color3.fromRGB(22,22,32)
     frame.Visible = i == 1
     frame.ZIndex = 103
     tabFrames[i] = frame
 
-    btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.18), {BackgroundColor3 = Color3.fromRGB(60,90,160)}):Play()
-    end)
-    btn.MouseLeave:Connect(function()
-        if activeTab ~= i then
-            TweenService:Create(btn, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(30,30,50)}):Play()
-        end
-    end)
     btn.MouseButton1Click:Connect(function()
         for j, f in ipairs(tabFrames) do
-            if f.Visible then fade(f, false, 0.22) end
+            f.Visible = false
             tabButtons[j].BackgroundColor3 = Color3.fromRGB(30,30,50)
         end
         activeTab = i
-        fade(frame, true, 0.22)
+        frame.Visible = true
         btn.BackgroundColor3 = Color3.fromRGB(80,120,220)
     end)
 end
@@ -156,7 +123,7 @@ end
 
 local function AddToggle(parent, text, default, callback, y)
     local frame = Instance.new("Frame", parent)
-    frame.Size = UDim2.new(0, 258, 0, 36)
+    frame.Size = UDim2.new(0, 250, 0, 36)
     frame.Position = UDim2.new(0, 24, 0, y)
     frame.BackgroundTransparency = 1
     frame.ZIndex = 106
@@ -168,7 +135,6 @@ local function AddToggle(parent, text, default, callback, y)
     lbl.TextSize = 18
     lbl.Font = Enum.Font.GothamBold
     lbl.TextColor3 = Color3.fromRGB(220,220,210)
-    lbl.TextTransparency = 0.25
     lbl.ZIndex = 107
 
     local toggle = Instance.new("TextButton", frame)
@@ -179,7 +145,6 @@ local function AddToggle(parent, text, default, callback, y)
     toggle.TextSize = 18
     toggle.Font = Enum.Font.GothamBold
     toggle.TextColor3 = Color3.fromRGB(255,255,220)
-    toggle.TextTransparency = 0.25
     toggle.ZIndex = 107
     toggle.AutoButtonColor = true
 
@@ -200,7 +165,7 @@ for i = 1, #Tabs do
 end
 
 ------------------------
--- ESPs: Smooth Premium
+-- ESPs: Premium
 ------------------------
 local function applyHighlight(obj, color, enable)
     if obj and obj:IsA("Model") then
@@ -262,7 +227,7 @@ for name, data in pairs(labESP) do
 end
 
 -----------------------
--- CHEATS: Smooth/Avançado
+-- CHEATS + WAYPOINTS
 -----------------------
 local cheatsY = 70
 local waypointsFolder = Workspace:FindFirstChild("Waypoints") or Instance.new("Folder", Workspace)
@@ -615,14 +580,14 @@ local instruct = Instance.new("TextLabel", MainFrame)
 instruct.Size = UDim2.new(1,0,0,28)
 instruct.Position = UDim2.new(0,0,1,-32)
 instruct.BackgroundTransparency = 1
-instruct.Text = "B = Waypoint | ALT = Show/Hide GUI | H = Mouse Lock | TP: Teleporta player | Toggles: smooth/ultra"
+instruct.Text = "Setas = Move GUI | ALT = Show/Hide GUI | H = Mouse Lock | TP: Teleporta player | Toggles: smooth/premium"
 instruct.Font = Enum.Font.Code
 instruct.TextColor3 = Color3.fromRGB(255,255,160)
 instruct.TextScaled = true
 instruct.ZIndex = 120
 
 --------------------------
--- HOTKEYS ALT FECHAR
+-- HOTKEYS ALT FECHAR + SETAS MOVE GUI
 --------------------------
 local guiVisible = true
 UserInputService.InputBegan:Connect(function(input, gp)
@@ -631,6 +596,19 @@ UserInputService.InputBegan:Connect(function(input, gp)
         guiVisible = not guiVisible
         gui.Enabled = guiVisible
     end
+    -- Arrow keys move GUI
+    if gui.Enabled then
+        local pos = MainFrame.Position
+        if input.KeyCode == Enum.KeyCode.Left then
+            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset - dragStep, pos.Y.Scale, pos.Y.Offset)
+        elseif input.KeyCode == Enum.KeyCode.Right then
+            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset + dragStep, pos.Y.Scale, pos.Y.Offset)
+        elseif input.KeyCode == Enum.KeyCode.Up then
+            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset - dragStep)
+        elseif input.KeyCode == Enum.KeyCode.Down then
+            MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset + dragStep)
+        end
+    end
 end)
 
--- Feito para Msouzen2002 2025 | Ultra Premium, modular, smooth, digna de menu de executor pago!
+-- Feito para Msouzen2002 2025 | Versão finalizada, ultra premium, setas para mover, ALT para abrir/fechar!
