@@ -1,4 +1,4 @@
--- FNAF TEST CORRIGIDO - GUI centralizada, P/L move 25 studs para cima/baixo, M fecha/abre
+-- FNAF TEST CORRIGIDO - GUI centralizada, P/L move 25 studs para cima/baixo, M fecha/abre, G mouse livre
 -- Feito para Msouzen2002
 
 local Players = game:GetService("Players")
@@ -18,15 +18,55 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 local moveStep = 25 -- Quantos studs o player move por P/L
 local guiVisible = true
+local mouseLocked = true -- Mouse começa travado (normal do jogo)
 
+-- Frame principal centralizado
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 520, 0, 440)
-frame.Position = UDim2.new(0.5, -260, 0.5, -220) -- CENTRALIZADO na tela
+frame.Position = UDim2.new(0.5, 0, 0.5, 0) -- PERFEITAMENTE CENTRALIZADO
 frame.BackgroundColor3 = Color3.fromRGB(30,33,46)
 frame.BorderSizePixel = 0
-frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.AnchorPoint = Vector2.new(0.5, 0.5) -- Ancora no centro
 frame.Active = true
 frame.Parent = gui
+
+-- Botão Fechar (X) no canto superior direito
+local closeBtn = Instance.new("TextButton", frame)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Text = "✕"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
+closeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+closeBtn.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
+closeBtn.BorderSizePixel = 0
+closeBtn.MouseButton1Click:Connect(function()
+    guiVisible = false
+    gui.Enabled = false
+    print("GUI fechada pelo botão X")
+end)
+
+-- Botão Abrir (quando GUI está fechada) - fica no canto da tela
+local openBtn = Instance.new("TextButton")
+openBtn.Name = "OpenButton"
+openBtn.Size = UDim2.new(0, 100, 0, 35)
+openBtn.Position = UDim2.new(0, 10, 0, 10) -- Canto superior esquerdo
+openBtn.Text = "FNAF MENU"
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 14
+openBtn.TextColor3 = Color3.fromRGB(255, 220, 90)
+openBtn.BackgroundColor3 = Color3.fromRGB(30, 33, 46)
+openBtn.BorderSizePixel = 1
+openBtn.BorderColor3 = Color3.fromRGB(255, 220, 90)
+openBtn.Visible = false -- Começa invisível
+openBtn.Parent = gui
+openBtn.MouseButton1Click:Connect(function()
+    guiVisible = true
+    gui.Enabled = true
+    frame.Visible = true
+    openBtn.Visible = false
+    print("GUI aberta pelo botão")
+end)
 
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1,0,0,40)
@@ -41,7 +81,7 @@ local info = Instance.new("TextLabel", frame)
 info.Size = UDim2.new(1, -20, 0, 28)
 info.Position = UDim2.new(0, 10, 1, -36)
 info.BackgroundTransparency = 1
-info.Text = "M: Fecha/Abre GUI | P/L: Move 25 studs para cima/baixo | B: Waypoint | TP/ESP Players"
+info.Text = "M: Fecha/Abre GUI | P/L: Move 25 studs | B: Waypoint | G: Mouse Livre | Botões: Fechar/Abrir"
 info.Font = Enum.Font.Code
 info.TextColor3 = Color3.fromRGB(255,255,160)
 info.TextScaled = true
@@ -52,6 +92,19 @@ local function movePlayerStuds(deltaY)
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if hrp then
         hrp.CFrame = hrp.CFrame + Vector3.new(0, deltaY, 0)
+        print("Player movido " .. deltaY .. " studs no eixo Y") -- Debug
+    end
+end
+
+-- Função para alternar mouse livre/travado
+local function toggleMouseLock()
+    mouseLocked = not mouseLocked
+    if mouseLocked then
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        print("Mouse travado") -- Debug
+    else
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        print("Mouse livre") -- Debug
     end
 end
 
@@ -144,15 +197,8 @@ local colorTable = {
     Color3.fromRGB(255, 0, 255), Color3.fromRGB(0, 255, 255),
     Color3.fromRGB(255, 128, 0), Color3.fromRGB(128, 0, 255)
 }
-local waypointBtn = Instance.new("TextButton", frame)
-waypointBtn.Size = UDim2.new(0,140,0,28)
-waypointBtn.Position = UDim2.new(0,180,0,48)
-waypointBtn.Text = "Criar Waypoint [B]"
-waypointBtn.Font = Enum.Font.GothamBold
-waypointBtn.TextSize = 15
-waypointBtn.BackgroundColor3 = Color3.fromRGB(60,60,24)
-waypointBtn.TextColor3 = Color3.fromRGB(255,255,120)
-waypointBtn.MouseButton1Click:Connect(function()
+
+local function createWaypoint()
     local character = player.Character
     local hrp = character and character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
@@ -195,13 +241,18 @@ waypointBtn.MouseButton1Click:Connect(function()
             hrp.CFrame = CFrame.new(part.Position + Vector3.new(0, 3, 0))
         end
     end)
-end)
-UserInputService.InputBegan:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == Enum.KeyCode.B then
-        waypointBtn.MouseButton1Click:Fire()
-    end
-end)
+    print("Waypoint criado: " .. name) -- Debug
+end
+
+local waypointBtn = Instance.new("TextButton", frame)
+waypointBtn.Size = UDim2.new(0,140,0,28)
+waypointBtn.Position = UDim2.new(0,180,0,48)
+waypointBtn.Text = "Criar Waypoint [B]"
+waypointBtn.Font = Enum.Font.GothamBold
+waypointBtn.TextSize = 15
+waypointBtn.BackgroundColor3 = Color3.fromRGB(60,60,24)
+waypointBtn.TextColor3 = Color3.fromRGB(255,255,120)
+waypointBtn.MouseButton1Click:Connect(createWaypoint)
 
 -- Player List (ESP/TP)
 local playerListLbl = Instance.new("TextLabel", frame)
@@ -225,6 +276,7 @@ playerListFrame.Name = "PlayerList"
 local function getPlayerRoot(plr)
     return plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
 end
+
 local function highlightPlayer(plr)
     local hrp = getPlayerRoot(plr)
     if hrp then
@@ -239,6 +291,7 @@ local function highlightPlayer(plr)
         end
     end
 end
+
 local function teleportToPlayer(plr)
     local hrp = getPlayerRoot(plr)
     local myhrp = getPlayerRoot(player)
@@ -291,24 +344,55 @@ local function populatePlayers()
     end
     playerListFrame.CanvasSize = UDim2.new(0,0,0,y)
 end
+
 Players.PlayerAdded:Connect(populatePlayers)
 Players.PlayerRemoving:Connect(populatePlayers)
 populatePlayers()
 
--- M fecha/abre GUI | P/L move player pra cima/baixo
-UserInputService.InputBegan:Connect(function(input, gp)
-    if gp then return end
-
-    if input.KeyCode == Enum.KeyCode.M then
+-- Sistema de Input - TODAS AS TECLAS AQUI
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    -- Não bloquear se o jogo já processou o input (como chat)
+    if gameProcessed then return end
+    
+    local keyCode = input.KeyCode
+    
+    -- M: Fecha/Abre GUI
+    if keyCode == Enum.KeyCode.M then
         guiVisible = not guiVisible
-        gui.Enabled = guiVisible
-    end
-
-    if gui.Enabled then
-        if input.KeyCode == Enum.KeyCode.P then
-            movePlayerStuds(moveStep)
-        elseif input.KeyCode == Enum.KeyCode.L then
-            movePlayerStuds(-moveStep)
+        if guiVisible then
+            gui.Enabled = true
+            frame.Visible = true
+            openBtn.Visible = false
+        else
+            gui.Enabled = false
+            frame.Visible = false
+            openBtn.Visible = true
         end
+        print("GUI " .. (guiVisible and "aberta" or "fechada")) -- Debug
+    end
+    
+    -- G: Mouse livre/travado
+    if keyCode == Enum.KeyCode.G then
+        toggleMouseLock()
+    end
+    
+    -- P: Move player para cima (apenas se GUI estiver visível)
+    if keyCode == Enum.KeyCode.P and guiVisible then
+        movePlayerStuds(moveStep)
+    end
+    
+    -- L: Move player para baixo (apenas se GUI estiver visível)
+    if keyCode == Enum.KeyCode.L and guiVisible then
+        movePlayerStuds(-moveStep)
+    end
+    
+    -- B: Criar waypoint
+    if keyCode == Enum.KeyCode.B then
+        createWaypoint()
     end
 end)
+
+-- Inicializar mouse travado (padrão do jogo)
+UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+
+print("FNAF Test Corrigido carregado com sucesso!")
